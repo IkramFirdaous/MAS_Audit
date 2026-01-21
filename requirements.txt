@@ -1,0 +1,11 @@
+# MAS Audit Dependencies
+
+# Core
+inspect-ai
+python-dotenv
+
+# MAS Frameworks
+pyautogen
+
+# Utils
+pydantic
