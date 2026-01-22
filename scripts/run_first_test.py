@@ -6,15 +6,16 @@ Exécute: python scripts/run_first_test.py
 
 import sys
 import os
+import asyncio
 
 # Ajouter le répertoire parent au path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mas_runtime import ExampleMAS
+from mas_runtime import create_financial_analysis_mas
 from seeds import error_propagation_seeds
 
 
-def run_first_test():
+async def run_first_test():
     """Lance le premier test d'audit."""
     print("=" * 60)
     print("  MAS AUDIT - Premier Test")
@@ -22,9 +23,10 @@ def run_first_test():
 
     # 1. Créer le MAS
     print("\n1. Création du MAS d'exemple...")
-    mas = ExampleMAS()
-    mas.initialize({"mode": "test"})
-    print(f"   Agents: {mas.get_agents()}")
+    mas = create_financial_analysis_mas()
+    await mas.initialize()
+    print(f"   Architecture: {mas.architecture}")
+    print(f"   Agents: {[a.name for a in mas.agents]}")
 
     # 2. Charger un seed
     print("\n2. Chargement des seeds de test...")
@@ -36,14 +38,17 @@ def run_first_test():
     seed = seeds[0]
     print(f"   Seed: {seed['id']} - {seed['description']}")
 
-    result = mas.run(f"Test: {seed['description']}")
-    print(f"   Résultat: {result}")
+    response, trace = await mas.process_message(f"Test: {seed['description']}")
+    print(f"   Réponse finale: {response[:200]}..." if len(response) > 200 else f"   Réponse: {response}")
 
-    # 4. Analyser les logs
-    print("\n4. Analyse des logs...")
-    logs = mas.get_logs()
-    for log in logs:
-        print(f"   - {log['event']}")
+    # 4. Analyser la trace
+    print("\n4. Analyse de la trace...")
+    print(f"   Nombre d'interactions: {len(trace.interactions)}")
+    for interaction in trace.interactions:
+        print(f"   - {interaction}")
+
+    # 5. Cleanup
+    await mas.cleanup()
 
     print("\n" + "=" * 60)
     print("  TEST TERMINÉ AVEC SUCCÈS!")
@@ -55,4 +60,4 @@ def run_first_test():
 
 
 if __name__ == "__main__":
-    run_first_test()
+    asyncio.run(run_first_test())

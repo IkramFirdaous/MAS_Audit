@@ -7,9 +7,10 @@ from inspect_ai import Task, task, eval
 from inspect_ai.dataset import Sample
 
 import sys
-sys.path.insert(0, "..")
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mas_runtime import ExampleMAS
+from mas_runtime import create_financial_analysis_mas
 from solvers import mas_auditor_solver
 from scorers import propagation_scorer
 from seeds import error_propagation_seeds, coordination_seeds

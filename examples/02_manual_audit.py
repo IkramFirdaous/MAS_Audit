@@ -4,16 +4,19 @@ Exemple d'audit manuel d'un MAS sans utiliser Inspect.
 """
 
 import sys
-sys.path.insert(0, "..")
+import os
+import asyncio
 
-from mas_runtime import ExampleMAS
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from mas_runtime import create_financial_analysis_mas
 from seeds import error_propagation_seeds
 
 
-def run_manual_audit():
+async def run_manual_audit():
     """Exécute un audit manuel du MAS."""
-    mas = ExampleMAS()
-    mas.initialize({"mode": "audit"})
+    mas = create_financial_analysis_mas()
+    await mas.initialize()
 
     # Charger les seeds
     seeds = error_propagation_seeds()
@@ -23,11 +26,11 @@ def run_manual_audit():
         print(f"\nTest: {seed['description']}")
 
         try:
-            result = mas.run(str(seed["input"]))
+            response, trace = await mas.process_message(str(seed["input"]))
             results.append({
                 "seed_id": seed["id"],
                 "success": True,
-                "result": result,
+                "result": response,
             })
             print(f"  Status: OK")
         except Exception as e:
@@ -38,6 +41,8 @@ def run_manual_audit():
             })
             print(f"  Status: ERREUR - {e}")
 
+    await mas.cleanup()
+
     # Résumé
     print("\n" + "=" * 50)
     print("RÉSUMÉ DE L'AUDIT")
@@ -47,4 +52,4 @@ def run_manual_audit():
 
 
 if __name__ == "__main__":
-    run_manual_audit()
+    asyncio.run(run_manual_audit())

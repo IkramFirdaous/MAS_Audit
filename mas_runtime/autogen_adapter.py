@@ -2,7 +2,7 @@
 Adapter pour AutoGen framework
 """
 import autogen
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from .base import MASRuntimeAdapter, MASTrace, AgentInteraction
 from datetime import datetime
 
